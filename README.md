@@ -1,6 +1,6 @@
 
 # Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning
-![Logo](./logo-small.jpg)
+![Logo](./Logo-small.jpg)
 
 This is the official code release of the following paper:
 
