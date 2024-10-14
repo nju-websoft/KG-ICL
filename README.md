@@ -10,18 +10,20 @@ Yuanning Cui, Zequn Sun, Wei Hu. Prompt-based Knowledge Graph Foundation Model f
 
 ![image](overview.png)
 
-## Instructions
+# Instructions
 
 A quick instruction is given for readers to reproduce the whole process.
 
 
-Requirements 
+## Install dependencies
 
-- python  3.9
-- pytorch  2.1.0+cu118
-- torch-geometric 2.4.0
-- ninja 1.11.1.1
-- tqdm
+    pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+    pip install torch-scatter==2.1.2 torch-sparse==0.6.18 torch-geometric==2.4.0 -f https://data.pyg.org/whl/torch-2.1.0+cu118.html
+    pip install ninja easydict pyyaml tqdm
+
+We use the ``rspmm`` kernel. Please make sure your ``CUDA_HOME`` variable is set properly to avoid potential compilation errors, eg
+    
+    export CUDA_HOME=/usr/local/cuda-11.8/
 
 ## Dataset
 
