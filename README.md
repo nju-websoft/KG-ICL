@@ -52,7 +52,7 @@ For evaluation, please replace the checkpoint path and test dataset path in the 
     chmod +x test.sh
     ./test.sh
 
-If you want to inference for a specific dataset, please replace the checkpoint path and evaluation dataset path in the following shell script:
+If you want to inference for a specific dataset, please replace the checkpoint path and evaluation dataset path:
     
     cd src
     python evaluation.py --checkpoint_path ./checkpoint/pretrain/kg_icl_6l --test_dataset_list [dataset_name]

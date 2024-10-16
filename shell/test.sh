@@ -19,6 +19,6 @@ for dataset in "${test_datasets3[@]}"; do
           --attn_dim 5 \
           --shot 5 \
           --act 'idd' \
-          --note "6L"
+          --note ""
   echo "-----------------------------------------------"
 done

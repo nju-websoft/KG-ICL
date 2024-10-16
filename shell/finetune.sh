@@ -8,7 +8,7 @@ test_datasets3=('WN18RR_v1_ind' 'WN18RR_v2_ind' 'WN18RR_v3_ind' 'WN18RR_v4_ind' 
 for dataset in "${test_datasets3[@]}"; do
   model_name=$base_path
   echo "Running finetune for dataset: $dataset"
-  python ../src_publish/finetune.py \
+  python ../src/finetune.py \
             --checkpoint_path "$model_name" \
             --train_dataset_list "$dataset" \
             --test_dataset_list "$dataset" \
@@ -20,6 +20,6 @@ for dataset in "${test_datasets3[@]}"; do
             --shot 5 \
             --act 'idd' \
             --max_step 200 \
-            --note "6L"
+            --note ""
   echo "-----------------------------------------------"
 done
