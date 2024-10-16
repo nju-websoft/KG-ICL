@@ -1,10 +1,8 @@
 
 # Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning
-![Logo](./Logo-small.jpg)
-
-This is the official code release of the following paper:
-
-Yuanning Cui, Zequn Sun, Wei Hu. Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning. NeurIPS 2024.
+<div align="center">
+  <img src="Logo.jpg" width="200">
+</div>
 
 > Extensive knowledge graphs (KGs) have been constructed to facilitate knowledge-driven tasks across various scenarios. However, existing work usually develops separate reasoning models for different KGs, lacking the ability to generalize and transfer knowledge across diverse KGs and reasoning settings. In this paper, we propose a prompt-based KG foundation model via in-context learning, namely KG-ICL, to achieve a universal reasoning ability. Specifically, we introduce a prompt graph centered with a query-related example fact as context to understand the query relation. To encode prompt graphs with the generalization ability to unseen entities and relations in queries, we first propose a unified tokenizer that maps entities and relations in prompt graphs to predefined tokens. Then, we propose two message passing neural networks to perform prompt encoding and KG reasoning, respectively. We conduct evaluations on 43 different KGs in both transductive and inductive settings. Results indicate that the proposed model outperforms baselines on most datasets, showcasing its outstanding generalization and universal reasoning capabilities.
 
@@ -46,7 +44,7 @@ For pre-training
     cd src
     python pretrain.py
 
-The checkpoints will be stored in the './chechpoint/pretrain/' fold.
+The checkpoints will be stored in the ``./chechpoint/pretrain/`` fold.
 
 For evaluation, please replace the checkpoint path and test dataset path in the following shell script.
     
