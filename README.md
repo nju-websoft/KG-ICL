@@ -4,7 +4,7 @@
   <img src="Logo.jpg" width="200">
 </div>
 
-> Extensive knowledge graphs (KGs) have been constructed to facilitate knowledge-driven tasks across various scenarios. However, existing work usually develops separate reasoning models for different KGs, lacking the ability to generalize and transfer knowledge across diverse KGs and reasoning settings. In this paper, we propose a prompt-based KG foundation model via in-context learning, namely \textbf{\modelname}, to achieve a universal reasoning ability. Specifically, we introduce a prompt graph centered with a query-related example fact as context to understand the query relation. To encode prompt graphs with the generalization ability to unseen entities and relations in queries, we first propose a unified tokenizer that maps entities and relations in prompt graphs to predefined tokens. Then, we propose two message passing neural networks to perform prompt encoding and KG reasoning, respectively. We conduct evaluation on 43 different KGs in both transductive and inductive settings. Results indicate that the proposed KG-ICL outperforms baselines on most datasets, showcasing its outstanding generalization and universal reasoning capabilities.
+> Extensive knowledge graphs (KGs) have been constructed to facilitate knowledge-driven tasks across various scenarios. However, existing work usually develops separate reasoning models for different KGs, lacking the ability to generalize and transfer knowledge across diverse KGs and reasoning settings. In this paper, we propose a prompt-based KG foundation model via in-context learning, namely **KG-ICL**, to achieve a universal reasoning ability. Specifically, we introduce a prompt graph centered with a query-related example fact as context to understand the query relation. To encode prompt graphs with the generalization ability to unseen entities and relations in queries, we first propose a unified tokenizer that maps entities and relations in prompt graphs to predefined tokens. Then, we propose two message passing neural networks to perform prompt encoding and KG reasoning, respectively. We conduct evaluation on 43 different KGs in both transductive and inductive settings. Results indicate that the proposed KG-ICL outperforms baselines on most datasets, showcasing its outstanding generalization and universal reasoning capabilities.
 
 ![image](overview.png)
 
@@ -46,18 +46,18 @@ For pre-training
 
 The checkpoints will be stored in the ``./chechpoint/pretrain/`` fold.
 
-For evaluation, please replace the checkpoint path and test dataset path in the following shell script.
+For evaluation, please replace the checkpoint path and test dataset path in the following shell script:
     
     cd shell
     chmod +x test.sh
     ./test.sh
 
-If you want to inference for a specific dataset, please replace the dataset path in the following shell script.
+If you want to inference for a specific dataset, please replace the checkpoint path and evaluation dataset path in the following shell script:
     
     cd src
     python evaluation.py --checkpoint_path ./checkpoint/pretrain/kg_icl_6l --test_dataset_list [dataset_name]
 
-For fine-tuning, please replace the checkpoint path and fine-tune dataset path in the following shell script.
+For fine-tuning, please replace the checkpoint path and fine-tune dataset path in the following shell script:
 
     cd shell
     chmod +x finetune.sh
