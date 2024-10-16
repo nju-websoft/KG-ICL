@@ -78,7 +78,7 @@ def prepare(args):
 
 parser = argparse.ArgumentParser(description="Parser for KGFM")
 
-parser.add_argument('--checkpoint_path', type=str, default='../checkpoint/pretrain/__[\'fb237_v1\', \'nell_v1\', \'codex-s\']__train_dim_32_layer_6_rel_layer_3__')
+parser.add_argument('--checkpoint_path', type=str, default='../checkpoint/pretrain/KG-ICL-6L')
 parser.add_argument('--train_dataset_list', type=str, default=None)
 parser.add_argument('--valid_dataset_list', type=str, default=None)
 # parser.add_argument('--test_dataset_list', type=str, default='Hetionet')
