@@ -71,7 +71,7 @@ parser = argparse.ArgumentParser(description="Parser for KG-ICL")
 # dataset
 parser.add_argument('--train_dataset_list', type=str, default='fb237_v1 nell_v1 codex-s')
 parser.add_argument('--valid_dataset_list', type=str, default='fb237_v1 nell_v1 codex-s')
-parser.add_argument('--test_dataset_list', default='WN18RR FB15k-237 NELL-995')
+parser.add_argument('--test_dataset_list', default='fb237_v1_ind nell_v1_ind codex-s')
 parser.add_argument('--train_part', type=str, default='train')
 parser.add_argument('--valid_part', type=str, default='valid')
 parser.add_argument('--test_part', type=str, default='test')
