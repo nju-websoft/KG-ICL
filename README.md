@@ -1,5 +1,5 @@
 
-# Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning
+# A Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning
 <div align="center">
   <img src="Logo.jpg" width="200">
 </div>
@@ -101,7 +101,7 @@ Here are the results of the three models:
 If you find the repository helpful, please cite the following paper
 ```bibtex
 @inproceedings{cui2024prompt,
-  title = { Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning },
+  title = { A Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning },
   author = { Cui, Yuanning and 
             Sun, Zequn and 
             Hu, Wei },
