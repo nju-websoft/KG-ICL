@@ -98,7 +98,7 @@ Here are the results of the three models:
 
 
 ## Citation
-If you find the repository helpful, please cite the following paper
+If you find the repository helpful, please cite the following [paper](http://arxiv.org/abs/2410.12288)
 ```bibtex
 @inproceedings{cui2024prompt,
   title = { A Prompt-based Knowledge Graph Foundation Model for Universal In-Context Reasoning },
