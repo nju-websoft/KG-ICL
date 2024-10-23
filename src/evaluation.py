@@ -126,6 +126,9 @@ parser.add_argument('--note', type=str, default='')
 
 args = parser.parse_args()
 
+if not os.path.exists(args.log_path):
+    os.makedirs(args.log_path)
+
 '''preprocess dataset list'''
 if args.train_dataset_list is None:
     pass

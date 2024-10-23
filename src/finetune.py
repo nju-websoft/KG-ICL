@@ -122,6 +122,8 @@ parser.add_argument('--note', type=str, default='finetune')
 parser.add_argument('--max_step', type=int, default=1000)
 
 args = parser.parse_args()
+if not os.path.exists(args.log_path):
+    os.makedirs(args.log_path)
 if args.train_dataset_list is None:
     pass
 elif len(args.train_dataset_list.split()) > 1:
