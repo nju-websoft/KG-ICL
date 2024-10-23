@@ -11,6 +11,7 @@
 # Instructions
 
 A quick instruction is given for readers to reproduce the whole process.
+Please use python 3.9 to run the code.
 
 
 ## Install dependencies
@@ -18,6 +19,11 @@ A quick instruction is given for readers to reproduce the whole process.
     pip install torch==2.2.0 --index-url https://download.pytorch.org/whl/cu118
     pip install torch-scatter==2.1.2 torch-sparse==0.6.18 torch-geometric==2.4.0 -f https://data.pyg.org/whl/torch-2.2.0+cu118.html
     pip install ninja easydict pyyaml tqdm
+
+If the numpy version is not compatible, please install the following version:
+    
+    pip uninstall numpy
+    pip install numpy==1.24.0
 
 We use the ``rspmm`` kernel. Please make sure your ``CUDA_HOME`` variable is set properly to avoid potential compilation errors, eg
     
