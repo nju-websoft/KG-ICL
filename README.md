@@ -35,7 +35,7 @@ We use the ``rspmm`` kernel. Please make sure your ``CUDA_HOME`` variable is set
     
     export CUDA_HOME=/usr/local/cuda-11.8/
 
-If your device does not support CUDA, or the ``rspmm`` kernel is not compiled successfully, please set the hyperparameter ``use_rspmm`` to ``False``.
+If you do not have GPUs, or the ``rspmm`` kernel is not compiled successfully, please set the hyperparameter ``use_rspmm`` to ``False``.
 
 
 ## Dataset
