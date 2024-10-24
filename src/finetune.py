@@ -52,7 +52,10 @@ def prepare(args):
     if not os.path.exists(args.log_path):
         os.makedirs(args.log_path)
     '''set gpu'''
-    torch.cuda.set_device(args.gpu)
+    if torch.cuda.is_available():
+        args.device = torch.device("cuda", args.gpu)
+    else:
+        args.device = torch.device("cpu")
     '''set seed'''
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -117,6 +120,7 @@ parser.add_argument('--log_path', type=str, default='../log/finetune/')
 parser.add_argument('--save_path', type=str, default='../checkpoint/finetune/')
 parser.add_argument('--seed', type=str, default=1234)
 parser.add_argument('--gpu', type=str, default=1)
+parser.add_argument('--use_rspmm', type=bool, default=True)
 parser.add_argument('--early_stop', type=int, default=2)
 parser.add_argument('--note', type=str, default='finetune')
 parser.add_argument('--max_step', type=int, default=1000)

@@ -95,7 +95,7 @@ parser.add_argument('--hidden_dim', type=int, default=32)
 parser.add_argument('--attn_dim', type=int, default=5)
 parser.add_argument('--n_epochs', type=int, default=100)
 parser.add_argument('--n_relation_encoder_layer', type=int, default=3)
-parser.add_argument('--n_layer', type=int, default=5)
+parser.add_argument('--n_layer', type=int, default=6)
 parser.add_argument('--train_batch_size', type=int, default=75)
 parser.add_argument('--test_batch_size', type=int, default=512)
 
@@ -115,8 +115,9 @@ parser.add_argument('--data_path', type=str, default='../processed_data/')
 parser.add_argument('--log_path', type=str, default='../log/pretrain/')
 parser.add_argument('--save_path', type=str, default='../checkpoint/pretrain/')
 parser.add_argument('--seed', type=str, default=1234)
-parser.add_argument('--gpu', type=str, default=5)
-parser.add_argument('--note', type=str, default='5L')
+parser.add_argument('--gpu', type=str, default=0)
+parser.add_argument('--use_rspmm', type=bool, default=True)
+parser.add_argument('--note', type=str, default='')
 
 
 if not os.path.exists('../log/'):
@@ -142,7 +143,10 @@ if not args.use_augment:
     args.dropout = 0.0
 
 '''set gpu'''
-torch.cuda.set_device(args.gpu)
+if torch.cuda.is_available():
+    args.device = torch.device("cuda", args.gpu)
+else:
+    args.device = torch.device("cpu")
 print('device:', torch.cuda.current_device())
 
 prepare(args)

@@ -57,7 +57,11 @@ def prepare(args):
     if not os.path.exists(args.log_path):
         os.makedirs(args.log_path)
     '''set gpu'''
-    torch.cuda.set_device(args.gpu)
+    if torch.cuda.is_available():
+        args.device = torch.device("cuda", args.gpu)
+    else:
+        args.device = torch.device("cpu")
+
     '''set seed'''
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -91,7 +95,7 @@ parser.add_argument('--use_attn', type=bool, default=True)  # False
 parser.add_argument('--attn_type', type=str, default='Sigmoid', help='GAT or Sigmoid')  #
 parser.add_argument('--AGG', type=str, default='max')  # sum
 parser.add_argument('--AGG_rel', type=str, default='max')  # sum
-parser.add_argument('--MSG', type=str, default='mix')  # add, concat, mix
+parser.add_argument('--MSG', type=str, default='concat')  # add, concat, mix
 parser.add_argument('--use_augment', type=bool, default=False)
 parser.add_argument('--use_token_set', type=bool, default=True)
 parser.add_argument('--use_prompt_graph', type=bool, default=True)
@@ -121,7 +125,8 @@ parser.add_argument('--data_path', type=str, default='../processed_data/')
 parser.add_argument('--log_path', type=str, default='../log/pretrain/')
 parser.add_argument('--save_path', type=str, default='../checkpoint/pretrain/')
 parser.add_argument('--seed', type=str, default=1)
-parser.add_argument('--gpu', type=str, default=2)
+parser.add_argument('--gpu', type=str, default='0')
+parser.add_argument('--use_rspmm', type=bool, default=True)
 parser.add_argument('--note', type=str, default='')
 
 args = parser.parse_args()

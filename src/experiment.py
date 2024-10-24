@@ -43,7 +43,7 @@ class Experiment(object):
         self.num_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
         self.args.logger.info('Number of parameters: {}'.format(self.num_params))
 
-        self.model.cuda()
+        self.model.to(self.args.device)
 
         self.optimizer = Adam(self.model.parameters(), lr=args.lr, weight_decay=args.lamb)
         self.scheduler = ExponentialLR(self.optimizer, args.decay_rate)
@@ -78,7 +78,10 @@ class Experiment(object):
         input_file = os.path.join(input_file, 'model_best.tar')
         if os.path.isfile(os.path.join(os.getcwd(), input_file)):
             print('=> loading checkpoint \'{}\''.format(os.path.join(os.getcwd(), input_file)))
-            checkpoint = torch.load(os.path.join(os.getcwd(), input_file), map_location="cuda:{}".format(gpu))
+            if torch.cuda.is_available():
+                checkpoint = torch.load(os.path.join(os.getcwd(), input_file), map_location="cuda:{}".format(gpu))
+            else:
+                checkpoint = torch.load(os.path.join(os.getcwd(), input_file), map_location="cpu")
             for key in list(checkpoint['state_dict'].keys()):
                 if key not in list(self.model.state_dict().keys()):
                     del checkpoint['state_dict'][key]
@@ -128,7 +131,7 @@ class Experiment(object):
                     now_loader = self.train_loaders[j]
                     triple = self.train_loaders[j].kg.data[i * now_loader.kg.train_batch_size:min(len(now_loader.kg.data), (i + 1) * now_loader.kg.train_batch_size)]
                     scores, rel_embeddings_full, rel_labels = self.model(triple[:, 0], triple[:, 1], triple[:, 2], loader=self.train_loaders[j], training=True, finetune=finetune)
-                    pos_scores = scores[[torch.arange(len(scores)).cuda(), torch.LongTensor(triple[:, 2]).cuda()]]
+                    pos_scores = scores[[torch.arange(len(scores)).to(self.args.device), torch.LongTensor(triple[:, 2]).to(self.args.device)]]
                     # delete invalid samples
                     valid_samples = torch.nonzero(pos_scores != 0).squeeze()
                     scores = scores[valid_samples]

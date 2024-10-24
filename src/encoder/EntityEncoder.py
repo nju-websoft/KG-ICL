@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
-# from torch_scatter import scatter_add, scatter_mean
+from torch_scatter import scatter_add
 from encoder.PromptEncoder import PromptEncoder
 import numpy as np
-from encoder.nbfnet_layers import GeneralizedRelationalConv
+
 import random
 
 class GNNLayer(torch.nn.Module):
@@ -21,10 +21,13 @@ class GNNLayer(torch.nn.Module):
         self.w_alpha = nn.Linear(attn_dim, 1)
         self.W_h = nn.Linear(in_dim, out_dim, bias=False)
         self.msg_dropout = nn.Dropout(args.dropout)
-        self.conv = GeneralizedRelationalConv(input_dim=in_dim, output_dim=out_dim, query_input_dim=in_dim,
-                                              message_func="transe",
-                                              aggregate_func="sum", activation="relu", dependent=False,
-                                              project_relations=False)
+        if torch.cuda.is_available() or not self.args.use_rspmm:
+            from encoder.nbfnet_layers import GeneralizedRelationalConv
+            self.conv = GeneralizedRelationalConv(input_dim=in_dim, output_dim=out_dim, query_input_dim=in_dim,
+                                                  message_func="transe",
+                                                  aggregate_func="sum", activation="relu", dependent=False,
+                                                  project_relations=False)
+
         self.act = nn.RReLU()
 
     def forward(self, q_sub, q_rel, hidden, edges, n_node, rel_embeddings, qr_embeddings, loader):
@@ -38,19 +41,23 @@ class GNNLayer(torch.nn.Module):
         hr = rel_embeddings.view(-1, self.in_dim)[rel + batch_idx * (loader.kg.relation_num + 1)]
 
         r_idx = edges[:, 0]
-        h_qr = rel_embeddings[q_rel + torch.arange(q_rel.size(0)).cuda() * (loader.kg.relation_num + 1)][r_idx]
+        h_qr = rel_embeddings[q_rel + torch.arange(q_rel.size(0)).to(self.args.device) * (loader.kg.relation_num + 1)][r_idx]
 
         alpha = self.w_alpha(
             nn.RReLU()(self.Ws_attn(hs) + self.Wr_attn(hr) + self.Wqr_attn(h_qr)))
         alpha = torch.sigmoid(alpha)  # [N_edge_of_all_batch, 1]
 
-        edge_index__ = edges[:, [4, 5]]
-
-        size = (sub.max() + 1, obj.max() + 1)
-        hidden = self.msg_dropout(hidden)
-        hidden = self.conv(relation=rel_embeddings, input=hidden, edge_index=edge_index__.t(),
-                           edge_type=rel.view(-1) + batch_idx * (loader.kg.relation_num + 1),
-                           size=size, edge_weight=alpha.view(-1))
+        # if not torch.cuda.is_available():
+        if not torch.cuda.is_available() or not self.args.use_rspmm:
+            message = hs + hr
+            hidden = scatter_add(alpha * message, index=obj, dim=0, dim_size=n_node)
+        else:
+            edge_index__ = edges[:, [4, 5]]
+            size = (sub.max() + 1, obj.max() + 1)
+            hidden = self.msg_dropout(hidden)
+            hidden = self.conv(relation=rel_embeddings, input=hidden, edge_index=edge_index__.t(),
+                               edge_type=rel.view(-1) + batch_idx * (loader.kg.relation_num + 1),
+                               size=size, edge_weight=alpha.view(-1))
         hidden = self.act(self.W_h(hidden))
         return hidden
 
@@ -93,21 +100,21 @@ class EntityEncoder(torch.nn.Module):
             rel_embeddings, query_embeddings, rel_embedding_full = self.relation_encoder(edge_index, edge_type, h_positions, t_positions, query_relations, edge_query_relations, labels,
                                                    num_ent, loader, shot=self.args.shot)
         else:
-            rel_embeddings = torch.zeros((len(unique_rels), (loader.kg.relation_num*2+2), self.hidden_dim)).cuda()
+            rel_embeddings = torch.zeros((len(unique_rels), (loader.kg.relation_num*2+2), self.hidden_dim)).to(self.args.device)
             query_embeddings = None
             rel_embedding_full = None
             nn.init.xavier_uniform_(rel_embeddings)
 
         # recover the embeddings
-        rel_embeddings = torch.index_select(rel_embeddings, 0, torch.from_numpy(unique_indices).cuda())
+        rel_embeddings = torch.index_select(rel_embeddings, 0, torch.from_numpy(unique_indices).to(self.args.device))
         rel_embeddings = rel_embeddings.reshape(-1, self.hidden_dim)
 
-        q_sub = torch.from_numpy(subs).cuda().long()
-        q_rel = torch.from_numpy(rels).cuda().long()
+        q_sub = torch.from_numpy(subs).to(self.args.device).long()
+        q_rel = torch.from_numpy(rels).to(self.args.device).long()
 
-        nodes = torch.cat([torch.arange(n).unsqueeze(1).cuda(), q_sub.unsqueeze(1)], 1)
+        nodes = torch.cat([torch.arange(n).unsqueeze(1).to(self.args.device), q_sub.unsqueeze(1)], 1)
 
-        hidden = torch.index_select(rel_embeddings, 0, q_rel+torch.arange(q_rel.size(0)).cuda()*(loader.kg.relation_num+1))
+        hidden = torch.index_select(rel_embeddings, 0, q_rel+torch.arange(q_rel.size(0)).to(self.args.device)*(loader.kg.relation_num+1))
 
         # dropout relations
         if self.args.use_augment:
@@ -118,7 +125,7 @@ class EntityEncoder(torch.nn.Module):
 
         mask_batch = np.random.choice([0, 1], size=loader.kg.relation_num, p=[1 - dropout_prob, dropout_prob])
 
-        distance2node = torch.ones((n, n_ent)).cuda()
+        distance2node = torch.ones((n, n_ent)).to(self.args.device)
         '''
         This setting aims to leverage the distance information between the target entity and the query entity. 
         If you're concerned about potential negative impacts on inference, 
@@ -148,9 +155,9 @@ class EntityEncoder(torch.nn.Module):
 
             hidden = self.gnn_layers[i](q_sub, q_rel, hidden, edges, nodes.size(0), rel_embeddings, query_embeddings, loader)
             if i == 0:
-                h0 = torch.zeros(1, nodes.size(0), hidden.size(1)).cuda()
+                h0 = torch.zeros(1, nodes.size(0), hidden.size(1)).to(self.args.device)
             else:
-                h0 = torch.zeros(1, nodes.size(0), hidden.size(1)).cuda().index_copy_(1, old_nodes_new_idx, h0)
+                h0 = torch.zeros(1, nodes.size(0), hidden.size(1)).to(self.args.device).index_copy_(1, old_nodes_new_idx, h0)
             hidden = self.dropout(hidden)
             hidden = self.layer_norms[i](hidden)
             hidden, h0 = self.gate(hidden.unsqueeze(0), h0)
@@ -158,7 +165,7 @@ class EntityEncoder(torch.nn.Module):
             rel_embeddings = self.layer_norms_rel[i](rel_embeddings)
 
         scores = self.W_final(hidden).squeeze(-1)
-        scores_all = torch.zeros((n, n_ent)).cuda()
+        scores_all = torch.zeros((n, n_ent)).to(self.args.device)
         scores_all[[nodes[:,0], nodes[:,1]]] = scores
         scores_all = scores_all * distance2node
-        return scores_all, rel_embedding_full, torch.from_numpy(repeat_rels).cuda()
+        return scores_all, rel_embedding_full, torch.from_numpy(repeat_rels).to(self.args.device)

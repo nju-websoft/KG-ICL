@@ -8,6 +8,12 @@
 
 ![image](overview.png)
 
+# Updates
+
+- **2024-10-24**: CPU version: Now, KG-ICL can be run on CPU devices without the need for a GPU. 
+- **2024-10-14**: We have released the code and datasets for KG-ICL.
+- **2024-09-26**: Our paper has been accepted by NeurIPS 2024! 
+
 # Instructions
 
 A quick instruction is given for readers to reproduce the whole process.
@@ -28,6 +34,9 @@ If the numpy version is not compatible, please install the following version:
 We use the ``rspmm`` kernel. Please make sure your ``CUDA_HOME`` variable is set properly to avoid potential compilation errors, eg
     
     export CUDA_HOME=/usr/local/cuda-11.8/
+
+If your device does not support CUDA, or the ``rspmm`` kernel is not compiled successfully, please set the hyperparameter ``use_rspmm`` to ``False``.
+
 
 ## Dataset
 

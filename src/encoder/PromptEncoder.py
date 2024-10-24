@@ -52,12 +52,12 @@ class PromptEncoder(torch.nn.Module):
             node_embeddings[t_positions] = self.position_embedding.weight[1]
 
             # initialize relation embeddings
-            rel_embeddings = torch.zeros(relation_num * h_positions.size(-1), self.hidden_dim).cuda()
-            rel_embeddings[query_relations+torch.arange(query_relations.size(-1)).cuda()*relation_num] = self.start_relation_embeddings.weight[0]
+            rel_embeddings = torch.zeros(relation_num * h_positions.size(-1), self.hidden_dim).to(self.args.device)
+            rel_embeddings[query_relations+torch.arange(query_relations.size(-1)).to(self.args.device)*relation_num] = self.start_relation_embeddings.weight[0]
         else:
             # initialize entity and relation embeddings (w/o unified token set)
-            node_embeddings = torch.zeros(num_ent, self.hidden_dim).cuda()
-            rel_embeddings = torch.zeros(relation_num * h_positions.size(-1), self.hidden_dim).cuda()
+            node_embeddings = torch.zeros(num_ent, self.hidden_dim).to(self.args.device)
+            rel_embeddings = torch.zeros(relation_num * h_positions.size(-1), self.hidden_dim).to(self.args.device)
             nn.init.xavier_uniform_(node_embeddings)
             nn.init.xavier_uniform_(rel_embeddings)
 
@@ -108,7 +108,7 @@ class PromptEncoder(torch.nn.Module):
 
             # 4. update self-loop embeddings
             qr_embeddings = torch.index_select(rel_embeddings, 0, query_relations + torch.arange(
-                query_relations.size(-1)).cuda() * relation_num)
+                query_relations.size(-1)).to(self.args.device) * relation_num)
             self_loop_embeddings = self_loop_embeddings + self.act(
                 self.loop_transfer[i](torch.cat([self_loop_embeddings, qr_embeddings], dim=-1)))
             self_loop_embeddings = self.layer_norm_loop[i](self_loop_embeddings)

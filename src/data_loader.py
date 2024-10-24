@@ -33,8 +33,8 @@ class DataLoader:
         return self.kg.get_case_graph(rels, id)
 
     def get_neighbors(self, nodes, subs, rels, objs=None, mask_relations=None, training=False):
-        indices_ = torch.cat([torch.from_numpy(nodes[:, 1]).cuda().long().unsqueeze(1), torch.from_numpy(nodes[:, 0]).cuda().long().unsqueeze(1)], dim=1).t()
-        node_1hot = torch.sparse_coo_tensor(indices_, torch.ones(len(nodes)).cuda(),
+        indices_ = torch.cat([torch.from_numpy(nodes[:, 1]).to(self.args.device).long().unsqueeze(1), torch.from_numpy(nodes[:, 0]).to(self.args.device).long().unsqueeze(1)], dim=1).t()
+        node_1hot = torch.sparse_coo_tensor(indices_, torch.ones(len(nodes)).to(self.args.device),
                                             torch.Size([self.kg.entity_num, nodes.shape[0]]))
 
         edge_1hot = torch.sparse.mm(self.M_sub, node_1hot)  # edge_idx x batch_idx
@@ -78,9 +78,9 @@ class DataLoader:
                 sampled_edges = sampled_edges[~final_mask]
 
 
-        nodes_torch = torch.LongTensor(nodes).cuda().long()
+        nodes_torch = torch.LongTensor(nodes).to(self.args.device).long()
         self_loop_edges = torch.cat([nodes_torch[:, 0].unsqueeze(1), nodes_torch[:, 1].unsqueeze(1),
-                                        self.kg.relation_num * torch.ones((len(nodes), 1)).cuda().long(),
+                                        self.kg.relation_num * torch.ones((len(nodes), 1)).to(self.args.device).long(),
                                         nodes_torch[:, 1].unsqueeze(1)], 1)
         sampled_edges = torch.cat([sampled_edges, self_loop_edges], 0)
 
@@ -106,14 +106,14 @@ class DataLoader:
 
     # torch version
     def build_graph(self, triples):
-        self.graph = torch.LongTensor(triples).cuda()
+        self.graph = torch.LongTensor(triples).to(self.args.device)
         self.fact_num = self.graph.size(0)
-        indices_A = torch.cat([torch.arange(self.fact_num).long().unsqueeze(1).cuda(), self.graph[:, 0].unsqueeze(1)], dim=1).t().cuda()
-        values_A = torch.ones((self.fact_num,)).cuda()
+        indices_A = torch.cat([torch.arange(self.fact_num).long().unsqueeze(1).to(self.args.device), self.graph[:, 0].unsqueeze(1)], dim=1).t().to(self.args.device)
+        values_A = torch.ones((self.fact_num,)).to(self.args.device)
         size_A = torch.Size([self.fact_num, self.kg.entity_num])
-        self.M_sub = torch.sparse_coo_tensor(indices_A, values_A, size_A).cuda()
-        indices_B = torch.cat([torch.arange(self.fact_num).long().unsqueeze(1).cuda(), self.graph[:, 2].unsqueeze(1)], dim=1).t().cuda()
-        self.M_obj = torch.sparse_coo_tensor(indices_B, values_A, size_A).cuda()
+        self.M_sub = torch.sparse_coo_tensor(indices_A, values_A, size_A).to(self.args.device)
+        indices_B = torch.cat([torch.arange(self.fact_num).long().unsqueeze(1).to(self.args.device), self.graph[:, 2].unsqueeze(1)], dim=1).t().to(self.args.device)
+        self.M_obj = torch.sparse_coo_tensor(indices_B, values_A, size_A).to(self.args.device)
 
 
 class KG:
@@ -301,10 +301,10 @@ class KG:
             edges_index, edges_type, query_relation, labels, num_nodes = self.case_select(rel, id=id_)
 
             relation_num = self.relation_num
-            batch_edge_index.append(torch.from_numpy(edges_index).cuda() + num_ent)
-            batch_edge_type.append(torch.from_numpy(edges_type + i * (relation_num)).cuda())
+            batch_edge_index.append(torch.from_numpy(edges_index).to(self.args.device) + num_ent)
+            batch_edge_type.append(torch.from_numpy(edges_type + i * (relation_num)).to(self.args.device))
             batch_edge_query_relations.append(
-                torch.ones(edges_type.shape).cuda() * query_relation + i * (self.relation_num))
+                torch.ones(edges_type.shape).to(self.args.device) * query_relation + i * (self.relation_num))
             if rel < self.relation_num // 2:
                 batch_h_positions.append(num_ent)
                 batch_t_positions.append(num_ent + 1)
@@ -312,13 +312,13 @@ class KG:
                 batch_h_positions.append(num_ent + 1)
                 batch_t_positions.append(num_ent)
             batch_query_relations.append(query_relation)
-            batch_labels.append(torch.from_numpy(labels).cuda())
+            batch_labels.append(torch.from_numpy(labels).to(self.args.device))
             num_ent += num_nodes
         batch_edge_index = torch.cat(batch_edge_index, -1).long()
         batch_edge_type = torch.cat(batch_edge_type, -1).long()
-        batch_h_positions = torch.LongTensor(batch_h_positions).cuda().long()
-        batch_t_positions = torch.LongTensor(batch_t_positions).cuda().long()
-        batch_query_relations = torch.LongTensor(batch_query_relations).cuda().long()
+        batch_h_positions = torch.LongTensor(batch_h_positions).to(self.args.device).long()
+        batch_t_positions = torch.LongTensor(batch_t_positions).to(self.args.device).long()
+        batch_query_relations = torch.LongTensor(batch_query_relations).to(self.args.device).long()
         batch_labels = torch.cat(batch_labels, 0).long()
         batch_edge_query_relations = torch.cat(batch_edge_query_relations, -1).long()
         return batch_edge_index, batch_edge_type, batch_h_positions, batch_t_positions, batch_query_relations, batch_edge_query_relations, batch_labels, num_ent
