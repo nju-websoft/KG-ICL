@@ -21,7 +21,7 @@ class GNNLayer(torch.nn.Module):
         self.w_alpha = nn.Linear(attn_dim, 1)
         self.W_h = nn.Linear(in_dim, out_dim, bias=False)
         self.msg_dropout = nn.Dropout(args.dropout)
-        if torch.cuda.is_available() or not self.args.use_rspmm:
+        if torch.cuda.is_available() and self.args.use_rspmm:
             from encoder.nbfnet_layers import GeneralizedRelationalConv
             self.conv = GeneralizedRelationalConv(input_dim=in_dim, output_dim=out_dim, query_input_dim=in_dim,
                                                   message_func="transe",
