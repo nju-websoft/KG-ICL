@@ -126,7 +126,7 @@ parser.add_argument('--log_path', type=str, default='../log/pretrain/')
 parser.add_argument('--save_path', type=str, default='../checkpoint/pretrain/')
 parser.add_argument('--seed', type=str, default=1)
 parser.add_argument('--gpu', type=str, default='0')
-parser.add_argument('--use_rspmm', type=bool, default=True)
+parser.add_argument('--use_rspmm', type=bool, default=False)
 parser.add_argument('--note', type=str, default='')
 
 args = parser.parse_args()

@@ -10,6 +10,7 @@
 
 # Updates
 
+- **2025-03-22**: Added guidance on how to run your own dataset. Additionally, I noticed some feedback indicating difficulties in configuring the rspmm environment. Therefore, I have changed the default value of the `use_rspmm` parameter in `evaluation.py` to `False`, allowing the import of rspmm-related packages to be skipped.
 - **2024-10-24**: CPU version: Now, KG-ICL can be run on CPU devices without the need for a GPU. 
 - **2024-10-14**: We have released the code and datasets for KG-ICL.
 - **2024-09-26**: Our paper has been accepted by NeurIPS 2024! 
@@ -70,7 +71,7 @@ For evaluation, please replace the checkpoint path and test dataset path in the 
 If you want to inference for a specific dataset, please replace the checkpoint path and evaluation dataset path:
     
     cd src
-    python evaluation.py --checkpoint_path ./checkpoint/pretrain/kg_icl_6l --test_dataset_list [dataset_name]
+    python evaluation.py --checkpoint_path ../checkpoint/KG-ICL-6L --test_dataset_list your_dataset
 
 For fine-tuning, please replace the checkpoint path and fine-tune dataset path in the following shell script:
 
