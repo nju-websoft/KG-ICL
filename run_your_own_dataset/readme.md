@@ -8,9 +8,9 @@ This guide will help you preprocess your own dataset and complete subsequent eva
 
 ### 1. Prepare Your Dataset
 You need to prepare the following three files:
-- `train.txt`
-- `valid.txt`
-- `test.txt`
+- `your_dataset/train.txt`
+- `your_dataset/valid.txt`
+- `your_dataset/test.txt`
 
 These files should be placed in the current directory.
 
